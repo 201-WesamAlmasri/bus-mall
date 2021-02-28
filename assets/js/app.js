@@ -45,40 +45,31 @@ function Product(name, img) {
   this.img = img;
   this.timesShown = 0;
   this.timesClicked = 0;
+  productsInstances.push(this);
 }
 
-// creating instances for each product image and push it to instances array
+// creating instances for each product image
 for(let index = 0; index < productsImages.length; index++){
-  productsInstances.push(new Product(productsImages[index].split('/')[3].split('.')[0], productsImages[index]));
+  new Product(getFileName(productsImages[index]), productsImages[index]);
 }
 
-// function to remove all child nodes and events listeners for an element
-function removeAllEventsAndChildNodes(parent) {
-  while (parent.firstChild) {
-    parent.firstChild.firstChild.removeEventListener('click', handleClick);
-    parent.removeChild(parent.firstChild);
-  }
+// functio to get the image file name from url (relative or absolute)
+function getFileName(url) {
+  return url.split('/')[url.split('/').length - 1].split('.')[0];
 }
 
-// function to remove all events listeners for an parent's element children
-function removeAllEventsForChildNodes(parent) {
-  for (let child = 0; child < parent.childNodes.length; child++) {
-    console.log(parent.childNodes[child].firstChild);
-    parent.childNodes[child].firstChild.removeEventListener('click', handleClick);
-  }
-}
-
-// get the parent (container element) of the images
+// get the parent (container element) of the images and add event listener
 const productsContainerElement = document.getElementById('products_container');
+productsContainerElement.addEventListener('click', handleClick); // event listener on click
 
 // function to generate random images and show them in the web page
-function getRandomProducts() {
+function renderRandomProducts() {
   currentRound++;
-  // remove all previous images and their event listener
-  removeAllEventsAndChildNodes(productsContainerElement);
+  // remove all previous images
+  removeAllChildNodes(productsContainerElement);
   let newProductsToShow = [];
   for(let i = 0; i < numberOfProductsPerPage; i++){
-    let randomProductIndex = Math.floor(Math.random() * productsImages.length);
+    let randomProductIndex = getRandomIndex(productsImages);
     if((lastProductsShown.length > 0 && lastProductsShown[i] === randomProductIndex ) || newProductsToShow.includes(randomProductIndex)){
       i--;
       continue;
@@ -93,22 +84,24 @@ function getRandomProducts() {
     imgElement.setAttribute('id', randomProductIndex);
     imgElement.setAttribute('src', productsInstances[randomProductIndex].img);
     imageWrapperElement.appendChild(imgElement);
-    imgElement.addEventListener('click', handleClick); // event listener on click
   }
   lastProductsShown = newProductsToShow;
 }
 
 // function to handle click on images
 function handleClick(event) {
-  productsInstances[Number(event.target.id)].timesClicked++;
-  if(currentRound === numberOfRounds){
-    const resultBtn = document.getElementById('view_result_btn');
-    resultBtn.setAttribute('class', 'show');
-    resultBtn.addEventListener('click', showResult);
-    removeAllEventsForChildNodes(productsContainerElement);
-    return;
+  console.log(event.target);
+  if(event.target.nodeName === 'IMG'){
+    productsInstances[Number(event.target.id)].timesClicked++;
+    if(currentRound === numberOfRounds){
+      const resultBtn = document.getElementById('view_result_btn');
+      resultBtn.setAttribute('class', 'show');
+      resultBtn.addEventListener('click', showResult);
+      productsContainerElement.removeEventListener('click', handleClick);
+      return;
+    }
+    renderRandomProducts();
   }
-  getRandomProducts();
 }
 
 // function to show the result on the web page
@@ -121,5 +114,17 @@ function showResult() {
   }
 }
 
+// function to generate a random index number for the image
+function getRandomIndex(arr) {
+  return Math.floor(Math.random() * arr.length);
+}
+
+// function to remove all child nodes and events listeners for an element
+function removeAllChildNodes(parent) {
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+}
+
 // generate random products for first time
-getRandomProducts();
+renderRandomProducts();
