@@ -34,7 +34,7 @@ let lastProductsShown = [];
 let productsInstances = [];
 
 // number of rounds
-let numberOfRounds = 10;
+let numberOfRounds = 25;
 
 // number of current round
 let currentRound = 0;
@@ -106,11 +106,14 @@ function handleClick(event) {
 
 // function to show the result on the web page
 function showResult() {
+  let totalProductsClicks = 0;
+  productsInstances.map(item => totalProductsClicks += item.timesClicked);
+  console.log(totalProductsClicks);
   const resultListElement = document.getElementById('result_list');
   for(let product = 0; product < productsInstances.length; product++){
     const liElement = document.createElement('li');
     resultListElement.appendChild(liElement);
-    liElement.textContent = `${productsInstances[product].name}: ${productsInstances[product].timesClicked} votes, seen: ${productsInstances[product].timesShown} times.`;
+    liElement.textContent = `${productsInstances[product].name}: ${productsInstances[product].timesClicked} votes (${(productsInstances[product].timesClicked / totalProductsClicks * 100)}%), seen: ${productsInstances[product].timesShown} times.`;
   }
 }
 

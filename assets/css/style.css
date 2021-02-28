@@ -30,7 +30,8 @@ header {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  padding: 20px 0 20px 20px ;
+  padding: 10px 0 10px 20px ;
+  background-color: #ffc478;
 }
 
 header h1 {
@@ -45,6 +46,7 @@ header img {
 main {
   display: flex;
   height: fit-content;
+  min-height: 100vh;
   border-top: grey solid 1px;
   border-bottom: grey solid 1px;
 }
@@ -149,5 +151,6 @@ ul li {
 footer {
   width: 100%;
   text-align: center;
-  padding: 40px 0;
+  padding: 20px 0;
+  background-color: #ffc478;
 }
