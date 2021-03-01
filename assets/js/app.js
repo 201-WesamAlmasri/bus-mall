@@ -83,6 +83,7 @@ function renderRandomProducts() {
     const imgElement = document.createElement('img');
     imgElement.setAttribute('id', randomProductIndex);
     imgElement.setAttribute('src', productsInstances[randomProductIndex].img);
+    imgElement.setAttribute('alt', productsInstances[randomProductIndex].name);
     imageWrapperElement.appendChild(imgElement);
   }
   lastProductsShown = newProductsToShow;
@@ -90,7 +91,6 @@ function renderRandomProducts() {
 
 // function to handle click on images
 function handleClick(event) {
-  console.log(event.target);
   if(event.target.nodeName === 'IMG'){
     productsInstances[Number(event.target.id)].timesClicked++;
     if(currentRound === numberOfRounds){
@@ -108,7 +108,6 @@ function handleClick(event) {
 function showResult() {
   let totalProductsClicks = 0;
   productsInstances.map(item => totalProductsClicks += item.timesClicked);
-  console.log(totalProductsClicks);
   const resultListElement = document.getElementById('result_list');
   for(let product = 0; product < productsInstances.length; product++){
     const liElement = document.createElement('li');
