@@ -91,6 +91,10 @@ main {
   transition: 0.3s
 }
 
+button.red {
+  background-color: red;
+}
+
 .result_container button.show:hover {
   transform: scale(1.05);
 }
@@ -153,4 +157,8 @@ footer {
   text-align: center;
   padding: 20px 0;
   background-color: #ffc478;
+}
+
+#barChart, #pieChart {
+  display: none;
 }

@@ -70,7 +70,7 @@ function renderRandomProducts() {
   let newProductsToShow = [];
   for(let i = 0; i < numberOfProductsPerPage; i++){
     let randomProductIndex = getRandomIndex(productsImages);
-    if((lastProductsShown.length > 0 && lastProductsShown[i] === randomProductIndex ) || newProductsToShow.includes(randomProductIndex)){
+    if((lastProductsShown.length > 0 && lastProductsShown.includes(randomProductIndex)) || newProductsToShow.includes(randomProductIndex)){
       i--;
       continue;
     }
@@ -94,6 +94,8 @@ function handleClick(event) {
   if(event.target.nodeName === 'IMG'){
     productsInstances[Number(event.target.id)].timesClicked++;
     if(currentRound === numberOfRounds){
+      barChart(productsInstances); // draw the bar chart
+      pieChart(productsInstances); // draw the pie chart
       const resultBtn = document.getElementById('view_result_btn');
       resultBtn.setAttribute('class', 'show');
       resultBtn.addEventListener('click', showResult);
@@ -105,7 +107,11 @@ function handleClick(event) {
 }
 
 // function to show the result on the web page
-function showResult() {
+function showResult(event) {
+  event.target.textContent = 'Reset';
+  event.target.className += ' red';
+  event.target.removeEventListener('click', showResult);
+  event.target.addEventListener('click', () => location.reload());
   let totalProductsClicks = 0;
   productsInstances.map(item => totalProductsClicks += item.timesClicked);
   const resultListElement = document.getElementById('result_list');
@@ -130,3 +136,85 @@ function removeAllChildNodes(parent) {
 
 // generate random products for first time
 renderRandomProducts();
+
+
+// function to draw the bar chart
+function barChart(objectArray) {
+  let ctx = document.getElementById('barChart').getContext('2d');
+  let myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Array.from(objectArray, product => product.name),
+      datasets: [{
+        label: '# of Votes',
+        data: Array.from(objectArray, product => product.timesClicked),
+        backgroundColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 50%)`),
+        borderColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 30%)`),
+        borderWidth: 1
+      },
+      {
+        label: '# of shows',
+        data: Array.from(objectArray, product => product.timesShown),
+        backgroundColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 70%, 60%)`),
+        borderColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 70%, 40%)`),
+        borderWidth: 1
+      }]
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Results'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+}
+
+// function to draw the pie chart
+function pieChart(objectArray) {
+  let totalProductsClicks = 0;
+  objectArray.map(item => totalProductsClicks += item.timesClicked);
+  let ctx = document.getElementById('pieChart').getContext('2d');
+  let myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: Array.from(objectArray, product => product.name),
+      datasets: [{
+        data: Array.from(objectArray, product => product.timesClicked * 100 / totalProductsClicks),
+        backgroundColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 50%)`),
+        borderColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 30%)`),
+        borderWidth: 1
+      }]
+    },
+    options: {
+      tooltips: {
+        enabled: true,
+        mode: 'single',
+        callbacks: {
+          label: function(tooltipItem, data) {
+            let label = `${data.labels[tooltipItem.index]}: ${data.datasets[0].data[tooltipItem.index]} %`;
+            console.log();
+            return label;
+          }
+        }
+      },
+      title: {
+        display: true,
+        text: 'Results'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+}
