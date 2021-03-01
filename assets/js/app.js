@@ -2,26 +2,26 @@
 
 // list of all products images
 let productsImages = [
-  '/assets/img/bag.jpg',
-  '/assets/img/banana.jpg',
-  '/assets/img/bathroom.jpg',
-  '/assets/img/boots.jpg',
-  '/assets/img/breakfast.jpg',
-  '/assets/img/bubblegum.jpg',
-  '/assets/img/chair.jpg',
-  '/assets/img/cthulhu.jpg',
-  '/assets/img/dog-duck.jpg',
-  '/assets/img/dragon.jpg',
-  '/assets/img/pen.jpg',
-  '/assets/img/pet-sweep.jpg',
-  '/assets/img/scissors.jpg',
-  '/assets/img/shark.jpg',
-  '/assets/img/sweep.png',
-  '/assets/img/tauntaun.jpg',
-  '/assets/img/unicorn.jpg',
-  '/assets/img/usb.gif',
-  '/assets/img/water-can.jpg',
-  '/assets/img/wine-glass.jpg'
+  './assets/img/bag.jpg',
+  './assets/img/banana.jpg',
+  './assets/img/bathroom.jpg',
+  './assets/img/boots.jpg',
+  './assets/img/breakfast.jpg',
+  './assets/img/bubblegum.jpg',
+  './assets/img/chair.jpg',
+  './assets/img/cthulhu.jpg',
+  './assets/img/dog-duck.jpg',
+  './assets/img/dragon.jpg',
+  './assets/img/pen.jpg',
+  './assets/img/pet-sweep.jpg',
+  './assets/img/scissors.jpg',
+  './assets/img/shark.jpg',
+  './assets/img/sweep.png',
+  './assets/img/tauntaun.jpg',
+  './assets/img/unicorn.jpg',
+  './assets/img/usb.gif',
+  './assets/img/water-can.jpg',
+  './assets/img/wine-glass.jpg'
 ];
 
 // number of image to show at the same time
