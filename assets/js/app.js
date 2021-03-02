@@ -24,6 +24,9 @@ let productsImages = [
   './assets/img/wine-glass.jpg'
 ];
 
+// constant to store the result key stored in localStorage
+const RESULTS_KEY = 'RESULTS';
+
 // number of image to show at the same time
 let numberOfProductsPerPage = 3;
 
@@ -48,9 +51,14 @@ function Product(name, img) {
   productsInstances.push(this);
 }
 
-// creating instances for each product image
-for(let index = 0; index < productsImages.length; index++){
-  new Product(getFileName(productsImages[index]), productsImages[index]);
+if(loadFromLocalStorage(RESULTS_KEY)){
+  // get the stored objects from the localStorage
+  productsInstances = loadFromLocalStorage(RESULTS_KEY);
+} else {
+  // creating instances for each product image
+  for(let index = 0; index < productsImages.length; index++){
+    new Product(getFileName(productsImages[index]), productsImages[index]);
+  }
 }
 
 // functio to get the image file name from url (relative or absolute)
@@ -94,6 +102,7 @@ function handleClick(event) {
   if(event.target.nodeName === 'IMG'){
     productsInstances[Number(event.target.id)].timesClicked++;
     if(currentRound === numberOfRounds){
+      saveInLocalStorage(RESULTS_KEY, productsInstances);
       barChart(productsInstances); // draw the bar chart
       pieChart(productsInstances); // draw the pie chart
       const resultBtn = document.getElementById('view_result_btn');
@@ -112,14 +121,25 @@ function showResult(event) {
   event.target.className += ' red';
   event.target.removeEventListener('click', showResult);
   event.target.addEventListener('click', () => location.reload());
-  let totalProductsClicks = 0;
-  productsInstances.map(item => totalProductsClicks += item.timesClicked);
+  let totalProductsClicks = totalClicks(productsInstances);
   const resultListElement = document.getElementById('result_list');
   for(let product = 0; product < productsInstances.length; product++){
     const liElement = document.createElement('li');
     resultListElement.appendChild(liElement);
-    liElement.textContent = `${productsInstances[product].name}: ${productsInstances[product].timesClicked} votes (${(productsInstances[product].timesClicked / totalProductsClicks * 100)}%), seen: ${productsInstances[product].timesShown} times.`;
+    liElement.textContent = `${productsInstances[product].name}: ${productsInstances[product].timesClicked} votes (${percentage(productsInstances[product].timesClicked, totalProductsClicks)}%), seen: ${productsInstances[product].timesShown} times.`;
   }
+}
+
+// function to calculate the total number of clicks for all product
+function totalClicks(productsArray) {
+  let totalProductsClicks = 0;
+  productsArray.map(item => totalProductsClicks += item.timesClicked);
+  return totalProductsClicks;
+}
+
+// function to calcualte the percentage of votes
+function percentage(productVotes, totalVotes) {
+  return ((productVotes / totalVotes) * 100).toFixed(1);
 }
 
 // function to generate a random index number for the image
@@ -141,22 +161,22 @@ renderRandomProducts();
 // function to draw the bar chart
 function barChart(objectArray) {
   let ctx = document.getElementById('barChart').getContext('2d');
-  let myChart = new Chart(ctx, {
+  new Chart(ctx, {
     type: 'bar',
     data: {
       labels: Array.from(objectArray, product => product.name),
       datasets: [{
         label: '# of Votes',
         data: Array.from(objectArray, product => product.timesClicked),
-        backgroundColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 50%)`),
-        borderColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 30%)`),
+        backgroundColor: 'hsl(0, 90%, 60%)',
+        borderColor: 'hsl(0, 90%, 40%)',
         borderWidth: 1
       },
       {
         label: '# of shows',
         data: Array.from(objectArray, product => product.timesShown),
-        backgroundColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 70%, 60%)`),
-        borderColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 70%, 40%)`),
+        backgroundColor: 'hsl(200, 70%, 60%)',
+        borderColor: 'hsl(200, 70%, 40%)',
         borderWidth: 1
       }]
     },
@@ -178,16 +198,15 @@ function barChart(objectArray) {
 
 // function to draw the pie chart
 function pieChart(objectArray) {
-  let totalProductsClicks = 0;
-  objectArray.map(item => totalProductsClicks += item.timesClicked);
+  let totalProductsClicks = totalClicks(productsInstances);
   let ctx = document.getElementById('pieChart').getContext('2d');
-  let myChart = new Chart(ctx, {
+  new Chart(ctx, {
     type: 'pie',
     data: {
       labels: Array.from(objectArray, product => product.name),
       datasets: [{
-        data: Array.from(objectArray, product => product.timesClicked * 100 / totalProductsClicks),
-        backgroundColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 50%)`),
+        data: Array.from(objectArray, product => percentage(product.timesClicked, totalProductsClicks)),
+        backgroundColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 55%)`),
         borderColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 30%)`),
         borderWidth: 1
       }]
@@ -217,4 +236,15 @@ function pieChart(objectArray) {
       }
     }
   });
+}
+
+
+// function to store items in localStorage
+function saveInLocalStorage (key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+// function to get items from localStorage
+function loadFromLocalStorage (key) {
+  return JSON.parse(localStorage.getItem(key));
 }
