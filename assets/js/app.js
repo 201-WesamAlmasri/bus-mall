@@ -78,7 +78,7 @@ function renderRandomProducts() {
   let newProductsToShow = [];
   for(let i = 0; i < numberOfProductsPerPage; i++){
     let randomProductIndex = getRandomIndex(productsImages);
-    if((lastProductsShown.length > 0 && lastProductsShown.includes(randomProductIndex)) || newProductsToShow.includes(randomProductIndex)){
+    if((lastProductsShown.length > 0 && ckeckContain(lastProductsShown, randomProductIndex)) || ckeckContain(newProductsToShow, randomProductIndex)){
       i--;
       continue;
     }
@@ -97,12 +97,22 @@ function renderRandomProducts() {
   lastProductsShown = newProductsToShow;
 }
 
+// function to check if there is an item inside an array
+function ckeckContain(array, item) {
+  for(let i = 0; i < array.length; i++ ){
+    if(array[i] === item){
+      return true;
+    }
+  }
+  return false;
+}
+
 // function to handle click on images
 function handleClick(event) {
   if(event.target.nodeName === 'IMG'){
     productsInstances[Number(event.target.id)].timesClicked++;
+    saveInLocalStorage(RESULTS_KEY, productsInstances);
     if(currentRound === numberOfRounds){
-      saveInLocalStorage(RESULTS_KEY, productsInstances);
       barChart(productsInstances); // draw the bar chart
       pieChart(productsInstances); // draw the pie chart
       const resultBtn = document.getElementById('view_result_btn');
@@ -160,21 +170,22 @@ renderRandomProducts();
 
 // function to draw the bar chart
 function barChart(objectArray) {
+  let [labels, clicks, views] = dataList(objectArray);
   let ctx = document.getElementById('barChart').getContext('2d');
   new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: Array.from(objectArray, product => product.name),
+      labels: labels,
       datasets: [{
         label: '# of Votes',
-        data: Array.from(objectArray, product => product.timesClicked),
+        data: clicks,
         backgroundColor: 'hsl(0, 90%, 60%)',
         borderColor: 'hsl(0, 90%, 40%)',
         borderWidth: 1
       },
       {
         label: '# of shows',
-        data: Array.from(objectArray, product => product.timesShown),
+        data: views,
         backgroundColor: 'hsl(200, 70%, 60%)',
         borderColor: 'hsl(200, 70%, 40%)',
         borderWidth: 1
@@ -198,14 +209,14 @@ function barChart(objectArray) {
 
 // function to draw the pie chart
 function pieChart(objectArray) {
-  let totalProductsClicks = totalClicks(productsInstances);
+  let [labels, , , percentage] = dataList(objectArray);
   let ctx = document.getElementById('pieChart').getContext('2d');
   new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: Array.from(objectArray, product => product.name),
+      labels: labels,
       datasets: [{
-        data: Array.from(objectArray, product => percentage(product.timesClicked, totalProductsClicks)),
+        data: percentage,
         backgroundColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 55%)`),
         borderColor: Array.from(objectArray, (product, index) => `hsl(${index * 50}, 50%, 30%)`),
         borderWidth: 1
@@ -238,6 +249,21 @@ function pieChart(objectArray) {
   });
 }
 
+// function to prepare a data list for bar chart
+function dataList(objectsArray) {
+  let clicksData =[];
+  let viewsData = [];
+  let labels = [];
+  let percentageData = [];
+  let totalProductsClicks = totalClicks(productsInstances);
+  for (let i = 0; i < objectsArray.length; i++){
+    clicksData.push(objectsArray[i].timesClicked);
+    viewsData.push(objectsArray[i].timesShown);
+    labels.push(objectsArray[i].name);
+    percentageData.push(percentage(objectsArray[i].timesClicked, totalProductsClicks));
+  }
+  return [labels, clicksData, viewsData, percentageData];
+}
 
 // function to store items in localStorage
 function saveInLocalStorage (key, value) {

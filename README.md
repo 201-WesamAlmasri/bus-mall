@@ -14,3 +14,4 @@ The app will generate a random products images to the user to vote and it will s
 - You can specify the session time (number of time to votes before the result's button appear(by changing the numberOfRounds variable **by default 25 rounds**)
 - The result's button will show the number of clickes for each product and how many times it shown, inaddition the percentage of votes.
 - When the voting's session end a bar and pie chart will appear to visualize the results.
+- The results will be stored, so that each time you do a voting session the results will accumulated.
